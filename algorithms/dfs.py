@@ -1,9 +1,6 @@
 # undirected connected graph
 
-from model.b_event import BEvent
-from execution.listeners.print_b_program_runner_listener import PrintBProgramRunnerListener
-from model.bprogram import BProgram
-from model.event_selection.bubble_event_selection import BubbleEventSelectionStrategy
+from bppy import *
 
 # public variables
 events = ["UNVISITED", "VISITED", "START", "ALL_NODES_VISITED", "ALL_NEIGHBORS_VISITED",
@@ -153,6 +150,6 @@ if __name__ == "__main__":
                                   [print_visited(i) for i in graph] +
                                   [print_finished(i) for i in graph] +
                                   [dfs_start()],
-                         event_selection_strategy=BubbleEventSelectionStrategy(),
+                         event_selection_strategy=SimpleEventSelectionStrategy(),
                          listener=PrintBProgramRunnerListener())
     b_program.run()
