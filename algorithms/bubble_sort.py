@@ -3,11 +3,13 @@ The bubble sort algorithm implementation as documented in the article "Toward Sc
 suffix_is_sorted does not work for some reason :\ the blocking loop in the end does not do its job..
 """
 
-from model.b_event import BEvent
-from execution.listeners.print_b_program_runner_listener import PrintBProgramRunnerListener
-from model.bprogram import BProgram
-from model.event_selection.simple_event_selection_strategy import SimpleEventSelectionStrategy
-import random
+from bppy import *
+
+# from model.b_event import BEvent
+# from execution.listeners.print_b_program_runner_listener import PrintBProgramRunnerListener
+# from model.bprogram import BProgram
+# from model.event_selection.simple_event_selection_strategy import SimpleEventSelectionStrategy
+# import random
 
 
 my_array = random.sample(range(1, 100), 10)
@@ -48,7 +50,8 @@ def bubble_pair(i):
 def bubble_start_next_pass(i):
     while True:
         yield {'waitFor': BEvent(name="UNSORTED", data={i: i+1})}
-        yield {'waitFor': BEvent(name="SORTED", data={len(my_array) - 2: len(my_array) - 1})}
+        yield {'waitFor': set([BEvent(name="SUFFIX_IS_SORTED", data={j: j+1}) for j in range(len(my_array)-1)])}
+        # yield {'waitFor': BEvent(name="SORTED", data={len(my_array) - 2: len(my_array) - 1})}
         yield {'request': BEvent(name="CHECK_ORDER", data={0: 1})}
 
 
@@ -82,7 +85,7 @@ if __name__ == "__main__":
                                   [bubble_start_next_pass(i) for i in range(len(my_array)-1)] +
                                   [bubble_pair(i) for i in range(len(my_array)-2)] +
                                   [swap_pair(i) for i in range(len(my_array)-1)] +
-                                  [suffix_is_sorted(i) for i in range(len(my_array))] +
+                                  [suffix_is_sorted(i) for i in range(1, len(my_array))] +
                                   [sensor(i) for i in range(len(my_array)-1)] +
                                   [sort_pair(i) for i in range(len(my_array)-1)],
                          event_selection_strategy=SimpleEventSelectionStrategy(),
