@@ -1,12 +1,10 @@
 # undirected connected graph
 
-from model.b_event import BEvent
-from execution.listeners.print_b_program_runner_listener import PrintBProgramRunnerListener
-from model.bprogram import BProgram
-from model.event_selection.bubble_event_selection import BubbleEventSelectionStrategy
+from bppy import *
 
 # public variables
-events = ["UNVISITED", "VISITED", "START", "ALL_NODES_VISITED", "ALL_NEIGHBORS_VISITED"]
+events = ["UNVISITED", "VISITED", "START", "ALL_NODES_VISITED",
+          "ALL_NEIGHBORS_VISITED", "VISIT_ALL_NEIGHBORS"]
 
 
 class Node:
@@ -46,68 +44,56 @@ graph[7].set_neighbors([graph[6], graph[4]])
 graph[8].set_neighbors([graph[0], graph[2], graph[6]])
 
 
+def sensor(i):
+    while True:
+        yield {'waitFor': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
+        yield {'request': set([BEvent(name="VISITED", data={i.get_id(): 'g'})] +
+                              [BEvent(name="UNVISITED", data={i.get_id(): 'g'})])}
+
+
 # visit scenarios
 def visit_node(i):
-    while True:
-        yield {'waitFor': BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
-        yield {'request': BEvent(name="VISIT", data={i.get_id(): 'g'})}
-
-
-def finish(i):
-    while True:
-        yield {'waitFor': BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
-        yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
+    yield {'waitFor': BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
+    yield {'request': BEvent(name="VISIT", data={i.get_id(): 'g'})}
 
 
 def set_visited(i):
     yield {'waitFor': BEvent(name="VISIT", data={i.get_id(): 'g'})}
-    yield {'request': BEvent(name="VISITED", data={i.get_id(): 'g'})}
-    print("hey")
-    while True:
-        yield {'block': set([BEvent(name="UNVISITED", data={i.get_id(): 'g'})] +
-                            [BEvent(name="VISITED", data={i.get_id(): 'g'})] +
-                            [BEvent(name="VISIT", data={i.get_id(): 'g'})])}
+    yield {'block': BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
 
 
 def visit_neighbors(i):
-    yield {'waitFor': BEvent(name="VISITED", data={i.get_id(): 'g'})}
+    yield {'waitFor': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
     for j in i.get_neighbors():
-        j.get_neighbors().remove(i)
-        yield {'request': BEvent(name="VISIT", data={j.get_id(): 'g'})}
-        yield {'waitFor': BEvent(name="ALL_NEIGHBORS_VISITED", data={j.get_id(): 'g'})}
+        yield {'request': BEvent(name="CHECK_IF_VISITED", data={j.get_id(): 'g'})}
+        last_event = yield {'waitFor': set([BEvent(name="UNVISITED", data={j.get_id(): 'g'})] +
+                                           [BEvent(name="VISITED", data={j.get_id(): 'g'})])}
+        if last_event.name == "UNVISITED":
+            yield {'waitFor': BEvent(name="VISITED", data={j.get_id(): 'g'})}
+            yield {'waitFor': BEvent(name="ALL_NEIGHBORS_VISITED", data={j.get_id(): 'g'})}
     yield {'request': BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})}
 
 
-# two append to list scenarios
-def mark_node_as_visited(i):
-    while True:
-        yield {'waitFor': BEvent(name="VISIT", data={i.get_id(): 'g'})}
-        # VISIT
-        yield {'request': BEvent(name="VISITED", data={i.get_id(): 'g'})}
-
-
-def mark_node_as_finished(i):
-    while True:
-        yield {'waitFor': BEvent(name="VISITED", data={i.get_id(): 'g'})}
-        if not i.get_neighbors():
-            yield {'request': BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})}
+def first_visit(i):
+    yield {'waitFor': BEvent(name="VISIT", data={i.get_id(): 'g'}),
+           'block': BEvent(name="VISITED", data={i.get_id(): 'g'})}
+    # VISIT
+    yield {'request': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
+    yield {'waitFor': BEvent(name="VISITED", data={i.get_id(): 'g'})}
+    yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
 
 
 def dfs_start():
     yield {'request': BEvent(name="VISIT", data={graph[0].get_id(): 'g'})}
-    yield {'waitFor': BEvent(name="VISITED", data={graph[0].get_id(): 'g'})}
-    yield {'waitFor': BEvent(name="VISIT_ALL_NEIGHBORS", data={graph[0].get_id(): 'g'})}
-    yield {'request': BEvent(name="ALL_NEIGHBORS_VISITED", data={graph[0].get_id(): 'g'})}
 
 
 if __name__ == "__main__":
-    b_program = BProgram(bthreads=[visit_node(i) for i in graph] +
-                                  [finish(i) for i in graph] +
+    b_program = BProgram(bthreads=[sensor(i) for i in graph] +
+                                  [visit_node(i) for i in graph] +
                                   [visit_neighbors(i) for i in graph] +
-                                  [mark_node_as_visited(i) for i in graph] +
-                                  [mark_node_as_finished(i) for i in graph] +
                                   [set_visited(i) for i in graph] +
+                                  [first_visit(i) for i in graph] +
                                   [dfs_start()],
-                         event_selection_strategy=BubbleEventSelectionStrategy(),
+                         event_selection_strategy=SimpleEventSelectionStrategy(),
                          listener=PrintBProgramRunnerListener())
     b_program.run()
