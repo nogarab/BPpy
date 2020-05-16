@@ -78,49 +78,44 @@ def sensor_2(i):
 
 # visit scenarios
 def visit_node(i):
-    while True:
-        yield {'waitFor': BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
-        yield {'request': BEvent(name="VISIT", data={i.get_id(): 'g'})}
-        yield {'request': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
+    yield {'waitFor': BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
+    yield {'request': BEvent(name="VISIT", data={i.get_id(): 'g'})}
+    yield {'request': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
 
 
 def finish(i):
-    while True:
-        yield {'waitFor': BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
-        if i.get_children():
-            yield {'request': BEvent(name="VISIT_ALL_DESCENDANTS", data={i.get_id(): 'g'})}
-        else:
-            yield {'request': BEvent(name="ALL_DESCENDANTS_VISITED", data={i.get_id(): 'g'})}
-            yield {'request': BEvent(name="CHECK_IF_FINISHED", data={i.get_id(): 'g'})}
-
-
-def visit_descendants(i):
-    while True:
-        yield {'waitFor': BEvent(name="VISIT_ALL_DESCENDANTS", data={i.get_id(): 'g'})}
-        for j in i.get_children():
-            yield {'request': BEvent(name="CHECK_IF_VISITED", data={j.get_id(): 'g'})}
-            yield {'waitFor': BEvent(name="VISITED", data={j.get_id(): 'g'})}
-            if not j.get_children():
-                yield {'request': BEvent(name="ALL_DESCENDANTS_VISITED", data={j.get_id(): 'g'})}
-            yield {'request': BEvent(name="CHECK_IF_FINISHED", data={j.get_id(): 'g'})}
-            yield {'waitFor': BEvent(name="FINISHED", data={j.get_id(): 'g'})}
+    yield {'waitFor': BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
+    if i.get_children():
+        yield {'request': BEvent(name="VISIT_ALL_DESCENDANTS", data={i.get_id(): 'g'})}
+    else:
         yield {'request': BEvent(name="ALL_DESCENDANTS_VISITED", data={i.get_id(): 'g'})}
         yield {'request': BEvent(name="CHECK_IF_FINISHED", data={i.get_id(): 'g'})}
 
 
+def visit_descendants(i):
+    yield {'waitFor': BEvent(name="VISIT_ALL_DESCENDANTS", data={i.get_id(): 'g'})}
+    for j in i.get_children():
+        yield {'request': BEvent(name="CHECK_IF_VISITED", data={j.get_id(): 'g'})}
+        yield {'waitFor': BEvent(name="VISITED", data={j.get_id(): 'g'})}
+        if not j.get_children():
+            yield {'request': BEvent(name="ALL_DESCENDANTS_VISITED", data={j.get_id(): 'g'})}
+        yield {'request': BEvent(name="CHECK_IF_FINISHED", data={j.get_id(): 'g'})}
+        yield {'waitFor': BEvent(name="FINISHED", data={j.get_id(): 'g'})}
+    yield {'request': BEvent(name="ALL_DESCENDANTS_VISITED", data={i.get_id(): 'g'})}
+    yield {'request': BEvent(name="CHECK_IF_FINISHED", data={i.get_id(): 'g'})}
+
+
 # two append to list scenarios
 def mark_node_as_visited(i):
-    while True:
-        yield {'waitFor': BEvent(name="VISIT", data={i.get_id(): 'g'})}
-        # VISIT
-        visited_nodes.append(i)
+    yield {'waitFor': BEvent(name="VISIT", data={i.get_id(): 'g'})}
+    # VISIT
+    visited_nodes.append(i)
 
 
 def mark_node_as_finished(i):
-    while True:
-        yield {'waitFor': BEvent(name="ALL_DESCENDANTS_VISITED", data={i.get_id(): 'g'})}
-        # FINISH
-        finished_nodes.append(i)
+    yield {'waitFor': BEvent(name="ALL_DESCENDANTS_VISITED", data={i.get_id(): 'g'})}
+    # FINISH
+    finished_nodes.append(i)
 
 
 # two print scenarios
