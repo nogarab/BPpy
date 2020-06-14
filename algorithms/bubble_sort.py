@@ -5,12 +5,6 @@ suffix_is_sorted does not work for some reason :\ the blocking loop in the end d
 
 from bppy import *
 
-# from model.b_event import BEvent
-# from execution.listeners.print_b_program_runner_listener import PrintBProgramRunnerListener
-# from model.bprogram import BProgram
-# from model.event_selection.simple_event_selection_strategy import SimpleEventSelectionStrategy
-# import random
-
 
 my_array = random.sample(range(1, 100), 10)
 events = ["UNSORTED", "SORTED", "EXTERNAL_CHANGE", "START", "SUFFIX_IS_SORTED", "ENTIRE_ARRAY_IS_SORTED", "SWAP"]

@@ -12,19 +12,12 @@ class Node:
     def __init__(self, id, neighbors=None):
         self.id = id
         self.neighbors = neighbors
-        self.visited = False
 
     def get_neighbors(self):
         return self.neighbors
 
     def set_neighbors(self, neighbors):
         self.neighbors = neighbors
-
-    def visited(self):
-        return self.visited
-
-    def set_visited(self):
-        self.visited = True
 
     def get_id(self):
         return self.id
