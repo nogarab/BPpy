@@ -45,7 +45,6 @@ def bubble_start_next_pass(i):
     while True:
         yield {'waitFor': BEvent(name="UNSORTED", data={i: i+1})}
         yield {'waitFor': set([BEvent(name="SUFFIX_IS_SORTED", data={j: j+1}) for j in range(len(my_array)-1)])}
-        # yield {'waitFor': BEvent(name="SORTED", data={len(my_array) - 2: len(my_array) - 1})}
         yield {'request': BEvent(name="CHECK_ORDER", data={0: 1})}
 
 
@@ -66,10 +65,8 @@ def print_array(i):
         print(my_array)
 
 
-def bubble_sort_start():  # block rest, not random event selection (choose start first)
-    yield {'block': set([BEvent(name="CHECK_ORDER", data={j: j+1}) for j in range(1, len(my_array) - 1)] +
-                        [BEvent(name=n) for n in events]),
-           'request': BEvent(name="CHECK_ORDER", data={0: 1})}
+def bubble_sort_start():
+    yield {'request': BEvent(name="CHECK_ORDER", data={0: 1})}
 
 
 if __name__ == "__main__":

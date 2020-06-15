@@ -1,7 +1,11 @@
-# like dfs_without_lists but without the event CHECK_IF_VISITED
+# like dfs_wl_new but stops if finds a value
 # undirected connected graph
 
 from bppy import *
+
+# public variables
+events = ["UNVISITED", "VISITED", "ALL_NEIGHBORS_VISITED",
+          "VISIT_ALL_NEIGHBORS", "VISIT"]
 
 
 class Node:
@@ -67,16 +71,23 @@ def first_visit(i):
     yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
 
 
+def stop(node):
+    yield {'waitFor': BEvent(name="VISITED", data={node.get_id(): 'g'})}
+    yield {'block': BEvent(name="VISIT_ALL_NEIGHBORS", data={node.get_id(): 'g'})}
+
+
 def dfs_start():
     yield {'request': BEvent(name="VISIT", data={graph[0].get_id(): 'g'})}
 
 
 if __name__ == "__main__":
+    value = graph[4]
     b_program = BProgram(bthreads=[sensor(i) for i in graph] +
                                   [visit_node(i) for i in graph] +
                                   [visit_neighbors(i) for i in graph] +
                                   [set_visited(i) for i in graph] +
                                   [first_visit(i) for i in graph] +
+                                  [stop(value)] +
                                   [dfs_start()],
                          event_selection_strategy=SimpleEventSelectionStrategy(),
                          listener=PrintBProgramRunnerListener())
