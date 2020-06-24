@@ -2,10 +2,6 @@
 
 from bppy import *
 
-# public variables
-events = ["UNVISITED", "VISITED", "START", "ALL_NODES_VISITED", "ALL_NEIGHBORS_VISITED",
-          "CHECK_IF_FINISHED", "VISIT"]
-
 
 class Node:
     def __init__(self, id, neighbors=None):
@@ -79,11 +75,6 @@ def visit_node(i):
     yield {'request': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
 
 
-def finish(i):
-    yield {'waitFor': BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
-    yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
-
-
 def visit_neighbors(i):
     yield {'waitFor': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
     for j in i.get_neighbors():
@@ -94,6 +85,12 @@ def visit_neighbors(i):
             yield {'waitFor': BEvent(name="FINISHED", data={j.get_id(): 'g'})}
     yield {'request': BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})}
     yield {'request': BEvent(name="CHECK_IF_FINISHED", data={i.get_id(): 'g'})}
+
+
+# order of execution control
+def finish(i):
+    yield {'waitFor': BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
+    yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
 
 
 # two append to list scenarios

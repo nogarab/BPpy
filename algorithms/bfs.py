@@ -68,15 +68,6 @@ def visit_node(i):
         yield {'request': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
 
 
-def move_to_next_layer(i):
-    while True:
-        yield {'waitFor': BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})}
-        for j in i.get_neighbors():
-            if j not in finished_nodes:
-                yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={j.get_id(): 'g'})}
-                yield {'waitFor': BEvent(name="ALL_NEIGHBORS_VISITED", data={j.get_id(): 'g'})}
-
-
 def visit_neighbors(i):
     while True:
         yield {'waitFor': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
@@ -85,6 +76,16 @@ def visit_neighbors(i):
                 yield {'request': BEvent(name="CHECK_IF_VISITED", data={j.get_id(): 'g'})}
                 yield {'waitFor': BEvent(name="VISITED", data={j.get_id(): 'g'})}
         yield {'request': BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})}
+
+
+# order of execution control
+def move_to_next_layer(i):
+    while True:
+        yield {'waitFor': BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})}
+        for j in i.get_neighbors():
+            if j not in finished_nodes:
+                yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={j.get_id(): 'g'})}
+                yield {'waitFor': BEvent(name="ALL_NEIGHBORS_VISITED", data={j.get_id(): 'g'})}
 
 
 # two append to list scenarios
@@ -119,7 +120,7 @@ def print_finished(i):
             print(j.get_id())
 
 
-def dfs_start():
+def bfs_start():
     yield {'block': set([BEvent(name="CHECK_IF_VISITED", data={graph[j].get_id(): 'g'}) for j in range(1, len(graph))] +
                         [BEvent(name=n) for n in events]),
            'request': BEvent(name="CHECK_IF_VISITED", data={graph[0].get_id(): 'g'})}
@@ -136,7 +137,7 @@ if __name__ == "__main__":
                                   [mark_node_as_finished(i) for i in graph] +
                                   [print_visited(i) for i in graph] +
                                   [print_finished(i) for i in graph] +
-                                  [dfs_start()],
+                                  [bfs_start()],
                          event_selection_strategy=SimpleEventSelectionStrategy(),
                          listener=PrintBProgramRunnerListener())
     b_program.run()

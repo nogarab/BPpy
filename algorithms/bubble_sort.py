@@ -7,7 +7,6 @@ from bppy import *
 
 
 my_array = random.sample(range(1, 100), 10)
-events = ["UNSORTED", "SORTED", "EXTERNAL_CHANGE", "START", "SUFFIX_IS_SORTED", "ENTIRE_ARRAY_IS_SORTED", "SWAP"]
 
 
 def sensor(i):
