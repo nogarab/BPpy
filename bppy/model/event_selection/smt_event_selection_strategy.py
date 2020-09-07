@@ -7,7 +7,7 @@ class SMTEventSelectionStrategy(EventSelectionStrategy):
     def is_satisfied(self, event, statement):
         return is_true(event.eval(statement.get('wait-for', true)))  # TODO: not sure if it's the right approach
 
-    def select(self, statements, additional_statement=None):
+    def select(self, b_program, statements, additional_statement=None):
         (request, block) = (false, false)
 
         # Collect request and block statements

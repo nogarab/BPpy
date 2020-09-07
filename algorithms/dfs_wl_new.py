@@ -57,7 +57,6 @@ def visit_neighbors(i):
         last_event = yield {'request': set([BEvent(name="UNVISITED", data={j.get_id(): 'g'})] +
                                            [BEvent(name="VISITED", data={j.get_id(): 'g'})])}
         if last_event.name == "UNVISITED":
-            yield {'waitFor': BEvent(name="VISITED", data={j.get_id(): 'g'})}
             yield {'waitFor': BEvent(name="ALL_NEIGHBORS_VISITED", data={j.get_id(): 'g'})}
     yield {'request': BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})}
 

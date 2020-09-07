@@ -121,9 +121,7 @@ def print_finished(i):
 
 
 def bfs_start():
-    yield {'block': set([BEvent(name="CHECK_IF_VISITED", data={graph[j].get_id(): 'g'}) for j in range(1, len(graph))] +
-                        [BEvent(name=n) for n in events]),
-           'request': BEvent(name="CHECK_IF_VISITED", data={graph[0].get_id(): 'g'})}
+    yield {'request': BEvent(name="CHECK_IF_VISITED", data={graph[0].get_id(): 'g'})}
     yield {'waitFor': BEvent(name="VISITED", data={graph[0].get_id(): 'g'})}
     yield {'request': BEvent(name="VISIT_ALL_NEIGHBORS", data={graph[0].get_id(): 'g'})}
 

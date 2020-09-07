@@ -1,3 +1,6 @@
 request = "request"
 waitFor = "waitFor"
 block = "block"
+ifHappened = "ifHappened"
+thenRequest = "thenRequest"
+otherwise = "otherwise"

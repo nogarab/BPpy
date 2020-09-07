@@ -3,10 +3,6 @@
 
 from bppy import *
 
-# public variables
-events = ["UNVISITED", "VISITED", "ALL_NEIGHBORS_VISITED",
-          "VISIT_ALL_NEIGHBORS", "VISIT"]
-
 
 class Node:
     def __init__(self, id, neighbors=None):

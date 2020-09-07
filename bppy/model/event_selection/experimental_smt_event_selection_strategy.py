@@ -25,7 +25,7 @@ class ExperimentalSMTEventSelectionStrategy(EventSelectionStrategy):
     def is_satisfied(self, event, statement):
         return is_true(event.eval(statement.get(WaitFor, true)))
 
-    def select(self, statements):
+    def select(self, b_program, statements):
         sl = Solver()
 
         # Collect the blocking constraints
