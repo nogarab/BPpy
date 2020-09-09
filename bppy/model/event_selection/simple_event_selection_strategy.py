@@ -34,7 +34,7 @@ class SimpleEventSelectionStrategy(EventSelectionStrategy):
                                 else:
                                     raise TypeError("thenRequest parameter should be BEvent or iterable")
                             except KeyError:
-                                print("'ifHappened' statements should also include 'thenRequest'")
+                                pass
                         else:  # statement['ifHappened'] is not in f.read()
                             try:
                                 if isinstance(statement['otherwise'], Iterable):
@@ -44,7 +44,7 @@ class SimpleEventSelectionStrategy(EventSelectionStrategy):
                                 else:
                                     raise TypeError("otherwise parameter should be BEvent or iterable")
                             except KeyError:
-                                print("'ifHappened' statements should also include 'otherwise'")
+                                pass
                     else:
                         raise TypeError("ifHappened parameter should be BEvent")
         return possible_events_to_add

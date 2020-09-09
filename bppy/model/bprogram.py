@@ -24,6 +24,7 @@ class BProgram:
 
         self.logger = logger
         self.log_file_name = 'bplog.log'
+        self.current_event = None
 
     def setup(self):
         if self.source_name:
@@ -51,7 +52,8 @@ class BProgram:
                     pass
 
     def next_event(self):
-        return self.event_selection_strategy.select(self, self.tickets)
+        self.current_event = self.event_selection_strategy.select(self, self.tickets)
+        return self.current_event
 
     def run(self):
         if self.listener:
