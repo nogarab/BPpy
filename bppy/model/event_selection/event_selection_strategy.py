@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class EventSelectionStrategy(ABC):
 
     @abstractmethod
-    def select(self, b_program, statements):
+    def select(self, statements):
         pass
 
     @abstractmethod
