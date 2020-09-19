@@ -3,24 +3,17 @@ from inspect import getmembers, isfunction
 from itertools import tee
 
 from z3 import *
-import logging
 
 
 class BProgram:
 
-    def __init__(self, bthreads=None, source_name=None, event_selection_strategy=None, listener=None):
+    def __init__(self, bthreads=None, source_name=None, event_selection_strategy=None, listener=None, logger=None):
         self.source_name = source_name
         self.bthreads = bthreads
         self.event_selection_strategy = event_selection_strategy
         self.listener = listener
         self.variables = None
         self.tickets = None
-
-        logger = logging.getLogger('bplog')
-        logger.setLevel(logging.INFO)
-        hdlr = logging.FileHandler('bplog.log', mode='w')
-        hdlr.setLevel(logging.DEBUG)
-        logger.addHandler(hdlr)
 
         self.logger = logger
         self.log_file_name = 'bplog.log'
@@ -52,7 +45,7 @@ class BProgram:
                     pass
 
     def next_event(self):
-        self.current_event = self.event_selection_strategy.select(self, self.tickets)
+        self.current_event = self.event_selection_strategy.select(self.tickets)
         return self.current_event
 
     def run(self):

@@ -1,6 +1,7 @@
 # undirected connected graph
 
 from bppy import *
+from algorithms.bp_log import BpLog
 
 
 class Node:
@@ -39,8 +40,6 @@ graph[6].set_neighbors([graph[5], graph[7], graph[8]])
 graph[7].set_neighbors([graph[6], graph[4]])
 graph[8].set_neighbors([graph[0], graph[2], graph[6]])
 
-# visited_nodes = []
-# finished_nodes = []
 visi = []
 fini = []
 
@@ -49,30 +48,25 @@ fini = []
 # forward search sensor:
 # waits for any CHECK_IF_VISITED(n) event, checks whether the node n has been visited and then requests
 # VISITED(n) / UNVISITED(n) accordingly.
-def sensor(i):
+def sensor(i, blog):
     while True:
         yield {'waitFor': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
-        yield {ifHappened: BEvent(name="VISIT", data={i.get_id(): 'g'}),
-               thenRequest: BEvent(name="VISITED", data={i.get_id(): 'g'}),
-               otherwise: BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
-# def sensor(i):
-#     while True:
-#         yield {'waitFor': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
-#         if i in visited_nodes:
-#             yield {'request': BEvent(name="VISITED", data={i.get_id(): 'g'})}
-#         else:
-#             yield {'request': BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
+        if blog.hasHappened(BEvent(name="VISIT", data={i.get_id(): 'g'})):
+            yield {'request': BEvent(name="VISITED", data={i.get_id(): 'g'})}
+        else:
+            yield {'request': BEvent(name="UNVISITED", data={i.get_id(): 'g'})}
 
 
 # backtracking sensor
 # waits for any CHECK_IF_FINISHED(n) event, checks whether the node n's children are finished and then requests
 # FINISHED(n) / UNFINISHED(n) accordingly.
-def sensor_2(i):
+def sensor_2(i, blog):
     while True:
         yield {'waitFor': BEvent(name="CHECK_IF_FINISHED", data={i.get_id(): 'g'})}
-        yield {ifHappened: BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'}),
-               thenRequest: BEvent(name="FINISHED", data={i.get_id(): 'g'}),
-               otherwise: BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
+        if blog.hasHappened(BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})):
+            yield {request: BEvent(name="FINISHED", data={i.get_id(): 'g'})}
+        else:
+            yield {request: BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
 
 
 # visit scenarios
@@ -82,12 +76,11 @@ def visit_node(i):
     yield {'request': BEvent(name="CHECK_IF_VISITED", data={i.get_id(): 'g'})}
 
 
-def visit_neighbors(i):
+def visit_neighbors(i, blog):
     yield {'waitFor': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
     for j in i.get_neighbors():
-        chosen = yield {ifHappened: BEvent(name="VISIT", data={j.get_id(): 'g'}),
-                        otherwise: BEvent(name="CHECK_IF_VISITED", data={j.get_id(): 'g'})}
-        if chosen == BEvent(name="CHECK_IF_VISITED", data={j.get_id(): 'g'}):
+        if not blog.hasHappened(BEvent(name="VISIT", data={j.get_id(): 'g'})):
+            yield {'request': BEvent(name="CHECK_IF_VISITED", data={j.get_id(): 'g'})}
             yield {'waitFor': BEvent(name="VISITED", data={j.get_id(): 'g'})}
             yield {'request': BEvent(name="CHECK_IF_FINISHED", data={j.get_id(): 'g'})}
             yield {'waitFor': BEvent(name="FINISHED", data={j.get_id(): 'g'})}
@@ -125,14 +118,17 @@ def dfs_start():
 
 
 if __name__ == "__main__":
-    b_program = BProgram(bthreads=[sensor(i) for i in graph] +
-                                  [sensor_2(i) for i in graph] +
+    b_log = BpLog()
+
+    b_program = BProgram(bthreads=[sensor(i, b_log) for i in graph] +
+                                  [sensor_2(i, b_log) for i in graph] +
                                   [visit_node(i) for i in graph] +
                                   [finish(i) for i in graph] +
-                                  [visit_neighbors(i) for i in graph] +
+                                  [visit_neighbors(i, b_log) for i in graph] +
                                   [print_visited(i) for i in graph] +
                                   [print_finished(i) for i in graph] +
                                   [dfs_start()],
                          event_selection_strategy=SimpleEventSelectionStrategy(),
-                         listener=PrintBProgramRunnerListener())
+                         listener=PrintBProgramRunnerListener(),
+                         logger=b_log)
     b_program.run()
