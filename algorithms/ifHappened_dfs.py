@@ -64,9 +64,9 @@ def sensor_2(i, blog):
     while True:
         yield {'waitFor': BEvent(name="CHECK_IF_FINISHED", data={i.get_id(): 'g'})}
         if blog.hasHappened(BEvent(name="ALL_NEIGHBORS_VISITED", data={i.get_id(): 'g'})):
-            yield {request: BEvent(name="FINISHED", data={i.get_id(): 'g'})}
+            yield {'request': BEvent(name="FINISHED", data={i.get_id(): 'g'})}
         else:
-            yield {request: BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
+            yield {'request': BEvent(name="UNFINISHED", data={i.get_id(): 'g'})}
 
 
 # visit scenarios
