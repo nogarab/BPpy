@@ -78,7 +78,9 @@ def visit_node(i):
 
 def visit_neighbors(i, blog):
     yield {'waitFor': BEvent(name="VISIT_ALL_NEIGHBORS", data={i.get_id(): 'g'})}
-    for j in b_log.have_not_happened(EventSetList({BEvent(name="VISIT", data={k.get_id(): 'g'}) for k in i.get_neighbors()})).lst:
+    not_happened = blog.have_not_happened(EventSetList({BEvent(name="VISIT", data={k.get_id(): 'g'})
+                                                        for k in i.get_neighbors()}))
+    for j in not_happened.lst:
         yield {'request': BEvent(name="CHECK_IF_VISITED", data=j.data)}
         yield {'waitFor': BEvent(name="VISITED", data=j.data)}
         yield {'request': BEvent(name="CHECK_IF_FINISHED", data=j.data)}
