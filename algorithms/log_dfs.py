@@ -1,7 +1,6 @@
 # undirected connected graph
 
 from bppy import *
-from algorithms.bp_log import BpLog
 
 
 class Node:

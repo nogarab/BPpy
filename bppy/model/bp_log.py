@@ -34,3 +34,41 @@ class BpLog:
         # event_set_list.lst.difference_update(happened)
         # return event_set_list
         return EventSetList({ev for ev in event_set_list.lst if not self.has_happened(ev)})
+
+    def e1_after_e2(self, e1, e2):
+        """
+        Did an E1 happen since last time E2 happened?
+        :return: True if e1 happened after the last e2, or if e1 happened and e2 never happened,
+        and False if e1 did not happen after the last appearance of e2 or if none of them ever happened
+        """
+        for event in reversed(self.get_event_list()):
+            if event.strip() == str(e1):
+                return True
+            if event.strip() == str(e2):
+                return False
+        return False
+
+    def count_e1_after_e2(self, e1, e2):
+        """
+        How many times did E1 occur since E2 last happened?
+        :param e1:
+        :param e2:
+        :return: if E2 never happened, returns -1. otherwise returns the number of times
+        E1 occurred since E2 last happened
+        """
+        if not self.has_happened(e2):
+            return -1
+        count = 0
+        for event in reversed(self.get_event_list()):
+            if event.strip() == str(e1):
+                count += 1
+            if event.strip() == str(e2):
+                return count
+
+    def get_event_list(self):
+        """
+        returns the list of events in the order they occurred
+        :return: the events that occurred so far in a list
+        """
+        with open(self.name) as f:
+            return f.readlines()

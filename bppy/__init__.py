@@ -14,6 +14,7 @@ from bppy.model.event_set import *
 from bppy.model.sync_statement import *
 from bppy.model.b_thread import *
 from bppy.utils.z3helper import *
+from bppy.model.bp_log import BpLog
 
 # def getListOfFiles(dirName):
 #     # create a list of file and sub directories
