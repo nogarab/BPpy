@@ -27,17 +27,21 @@ class BpLog:
         :param event_set_list: the given set of events
         :return: a set of the events that have not happened yet out of event_set_list
         """
-        # happened = set()
-        # for event in event_set_list.lst:  # stay only with events that have not happened yet
-        #     if self.has_happened(event):
-        #         happened.add(event)
-        # event_set_list.lst.difference_update(happened)
-        # return event_set_list
         return EventSetList({ev for ev in event_set_list.lst if not self.has_happened(ev)})
+
+    def did_all_happen(self, event_set_list):
+        """
+        Did all the events in the given event-set ever occur in the log?
+        :param event_set_list: the given set of events
+        :return: True/False
+        """
+        return False if self.have_not_happened(EventSetList(event_set_list)).lst else True
 
     def e1_after_e2(self, e1, e2):
         """
         Did an E1 happen since last time E2 happened?
+        :param e1: a BEvent
+        :param e2: a BEvent
         :return: True if e1 happened after the last e2, or if e1 happened and e2 never happened,
         and False if e1 did not happen after the last appearance of e2 or if none of them ever happened
         """
@@ -51,8 +55,8 @@ class BpLog:
     def count_e1_after_e2(self, e1, e2):
         """
         How many times did E1 occur since E2 last happened?
-        :param e1:
-        :param e2:
+        :param e1: a BEvent
+        :param e2: a BEvent
         :return: if E2 never happened, returns -1. otherwise returns the number of times
         E1 occurred since E2 last happened
         """
