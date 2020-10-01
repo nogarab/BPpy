@@ -29,15 +29,15 @@ graph = []
 for i in range(9):
     graph.append(Node(i))
 
-graph[0].set_neighbors([graph[1], graph[8]])
-graph[1].set_neighbors([graph[0]])
-graph[2].set_neighbors([graph[3], graph[4], graph[5], graph[8]])
-graph[3].set_neighbors([graph[2]])
-graph[4].set_neighbors([graph[2], graph[7]])
-graph[5].set_neighbors([graph[2], graph[6]])
-graph[6].set_neighbors([graph[5], graph[7], graph[8]])
-graph[7].set_neighbors([graph[6], graph[4]])
-graph[8].set_neighbors([graph[0], graph[2], graph[6]])
+graph[0].set_neighbors({graph[1], graph[8]})
+graph[1].set_neighbors({graph[0]})
+graph[2].set_neighbors({graph[3], graph[4], graph[5], graph[8]})
+graph[3].set_neighbors({graph[2]})
+graph[4].set_neighbors({graph[2], graph[7]})
+graph[5].set_neighbors({graph[2], graph[6]})
+graph[6].set_neighbors({graph[5], graph[7], graph[8]})
+graph[7].set_neighbors({graph[6], graph[4]})
+graph[8].set_neighbors({graph[0], graph[2], graph[6]})
 
 visi = []
 fini = []
